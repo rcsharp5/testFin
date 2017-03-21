@@ -1,6 +1,7 @@
 var gulp = require('gulp');
 var path = require("path");
-var Finsemble = require('finsemble');
+var Finsemble = require('Finsemble');
+var configPath = __dirname + '/configs/finConfig.json';
 gulp.task('default',["devServer"], function() {
   // You can use multiple globbing patterns as you would with `gulp.src` 
   return ;
