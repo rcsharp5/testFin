@@ -1,0 +1,15 @@
+.settings/
+.project
+node_modules
+.vscode
+.idea
+.DS_Store
+apps
+cache
+cache.dat
+runtime
+docs/documentation
+npm-debug.log
+crash_service.exe
+debug.log
+-
