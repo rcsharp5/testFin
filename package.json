@@ -9,9 +9,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "fin2": "file:e:/nodeProjects/finsemble",
     "finsemble": "git+git@github.com:ChartIQ/finsemble.git#testNpm",
+    "gulp": "^3.9.1",
     "nocache": "^2.0.0",
     "openfin-launcher": "^1.3.11",
+    "webpack": "^1.9.0",
     "webpack-glob-entries": "^1.0.1"
+  },
+  "devDependencies": {
+    "del": "^2.2.2",
+    "gulp-webpack": "^1.5.0"
   }
 }

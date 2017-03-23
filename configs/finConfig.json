@@ -35,11 +35,39 @@
                             "useWindow": true,
                             "visible": true,
                             "active": true,
-                            "html": "/services/testService/test.html",
+                            "html": "/localServices/services/test/test.html",
                             "name": "testService",
-                            "files": "/services/testService/testService.js"
+                            "files": "localServices/services/test/testService.js"
                         }
                     ]
+                },
+                "components": {
+                    "testGoogle": {
+                        "window": {
+                            "url": "http://google.com",
+                            "frame": false,
+                            "resizable": false,
+                            "autoShow": true,
+                            "addToWorkspace": true,
+                            "defaultTop": "center",
+                            "defaultLeft": "center",
+                            "defaultWidth": 800,
+                            "defaultHeight": 600,
+                            "customData": {
+                                "persists": true,
+                                "FSBLHeader": true,
+                                "componentType": "testGoogle",
+                                "isPinned": false,
+                                "launchableByUser": true
+                            }
+                        },
+                        "linker": {
+                            "symbol": {
+                                "receive": true,
+                                "transmit": true
+                            }
+                        }
+                    }
                 }
             }
         }

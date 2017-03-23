@@ -7,7 +7,8 @@ var nocache = require('nocache');
 var path = require('path');
 //app.use(express.static(rootDir));
 app.use(express.static(path.join(__dirname,"..",'/node_modules/finsemble/dist')));
-console.log(__dirname + '/node_modules/finsemble/dist')
+app.use("/localServices",express.static(path.join(__dirname,"..",'/built/')));
+console.log("/localServices",__dirname + '/built/')
 var PORT = process.env.PORT || 80;
 
 var server = app.listen(PORT, function () {
