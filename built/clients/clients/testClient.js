@@ -57,6 +57,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Finsemble = __webpack_require__(1);
 	var RouterClient = Finsemble.Clients.RouterClient;
 	var BaseClient = Finsemble.Clients.BaseClient;
+	var WindowClient = Finsemble.Clients.WindowClient;
+	var DialogManager = Finsemble.Clients.DialogManager;
+	
 	var util = Finsemble.Utils;
 	var console = new util.Console("BaseClient"); // Finsemble console
 	var Validate = Finsemble.Validate; // Finsemble args validator
@@ -69,7 +72,30 @@ return /******/ (function(modules) { // webpackBootstrap
 	function testClient(params) {
 		BaseClient.call(this, params);
 		Validate.args(params, "object=") && params && Validate.args2("params.onReady", params.onReady, "function=");
+	
 		console.log('holaaa!');
+		this.spawnADialog = function () {
+			DialogManager.spawnDialog({
+				defaultTop: 'center',
+				defaultLeft: 'center',
+				defaultWidth: 350,
+				defaultHeight: 125,
+				url: '/components/dialogs/yesNo.html'
+	
+			},
+			{
+				question: 'Would you like to close this window?'
+			}, function (err, response) {
+				if (err) {
+					console.error(err);
+					return;
+				}
+				if (response.choice === 'affirmative') {
+					WindowClient.close();
+				}
+			});
+		}
+	
 		return this;
 	};
 	
@@ -195,8 +221,13 @@ return /******/ (function(modules) { // webpackBootstrap
 					if(err){return console.error(err);}
 					self.setClientOnline(data.data);
 				});
-				if(clients.length === 0) {return cb;}
-				this.addEventListener("onReady",cb);
+				if (clients.length === 0) { return cb; }
+				if (!clients.includes('RouterClient')) {
+					clients.push('RouterClient');
+				}
+				if (cb) {
+					this.addEventListener("onReady",cb);			
+				}
 				for(var i=0;i<clients.length;i++){
 					console.log("clients[i]",clients[i]);
 					this.Clients[clients[i]].initialize();
@@ -205,10 +236,11 @@ return /******/ (function(modules) { // webpackBootstrap
 			
 			this.setClientOnline = function (clientName) {
 				Validate.args(clientName, "string");
-				console.log('Client Online: ' + clientName);
-				if (onlineClients.indexOf(clientName) === -1) {
-					onlineClients.push(clientName);
+				if (onlineClients.includes(clientName)) {
+					return;
 				}
+				console.log('Client Online: ' + clientName);
+				onlineClients.push(clientName);
 				console.log(onlineClients.length ,clients.length);
 				if (onlineClients.length ===clients.length) {
 					status = "online";
