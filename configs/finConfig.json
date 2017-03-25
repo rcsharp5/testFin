@@ -42,9 +42,9 @@
                     ]
                 },
                 "components": {
-                    "testGoogle": {
+                    "testComponent": {
                         "window": {
-                            "url": "http://google.com",
+                            "url": "/localServices/components/testComponent/testComponent.html",
                             "frame": false,
                             "resizable": false,
                             "autoShow": true,
@@ -56,7 +56,7 @@
                             "customData": {
                                 "persists": true,
                                 "FSBLHeader": true,
-                                "componentType": "testGoogle",
+                                "componentType": "testComponent",
                                 "isPinned": false,
                                 "launchableByUser": true
                             }

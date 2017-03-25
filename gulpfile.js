@@ -1,59 +1,91 @@
-var gulp = require('gulp');
+var gulp = require('gulp-4.0.build');
 var path = require("path");
 var gulpWebpack = require('gulp-webpack');
 var webpack = require("webpack");
 var del = require('del');
-
-var  Finsemble = require(path.join("finsemble/libs/Server.js"));
-var configPath = __dirname + '/configs/finConfig.json';
-gulp.task('default',["devServer"], function() {
-  return ;
-});
+var openfinLauncher = require('openfin-launcher');
+var configPath = path.join(__dirname, '/configs/finConfig.json');
 
 function copyStaticFiles() {
-	
-	return gulp.src([path.join(__dirname, '/src/services/**/*'),
-	
-	//ignores the js files in service, but copies over the html files.
-		path.join('!' + __dirname, '/src/services/**/*.js')])
-	//don't need JSX files in dist.
-		.pipe(gulp.dest(path.join(__dirname, '/built/services')));
+	return gulp.src([
+				path.join(__dirname, '/src/**/*'),
+				path.join('!' + __dirname, '/src/**/*.js')
+			])	
+			.pipe(gulp.dest(path.join(__dirname, '/built/')));
 }
 
-gulp.task('wipeServices',function (done) {
-	wipe(path.join(__dirname, '/built/services/'), done);
-})
+function wipeBuilt(done) {
+	var dir = path.join(__dirname, '/built/');
+	console.log('dir', dir);
+	wipe(dir, done);
+}
+
+
 function wipe(dir, cb) {
 	del(dir, { force: true }).then(function () {
 		if (cb) {
 			cb();
 		}
+	}).catch(function (err) { 
+		console.error(err);
 	});
 }
-
-function webpackIt(){
-		return gulpWebpack(require('./webpack.config.js'), webpack)
+function webpackClients() {
+	return gulpWebpack(require('./configs/webpack.clients.config.js'), webpack)
+		.pipe(gulp.dest(path.join(__dirname, '/built/clients')));
+}
+function webpackServices() {
+	return gulpWebpack(require('./configs/webpack.services.config.js'), webpack)
 		.pipe(gulp.dest(path.join(__dirname, '/built/services')));
 }
 
-gulp.task('devServer',["wipeServices"], function(done) {
-	copyStaticFiles();
-	webpackIt();
- 	var exec = require('child_process').exec;
-	//This runs essentially runs 'PORT=80 node server/server.js'
-	var serverExec = exec('node ' + path.join(__dirname, '/server/server.js'), { env: { 'PORT': 80, NODE_ENV: "dev" } });
-	serverExec.stdout.on("data", function (data) {
-		//Prints server output to your terminal.
-		console.log("SERVER STDOUT:", data);
-		if (data.indexOf("listening on port") > -1) {
-			//Once the server is up and running, we launch openfin.
-			console.log("Finsemble",Finsemble.launchOpenfin)
-			Finsemble.launchOpenfin(configPath);
-			done();
-		}
+function webpackComponents() {
+	return gulpWebpack(require('./configs/webpack.components.config.js'), webpack)
+		.pipe(gulp.dest(path.join(__dirname, '/built/components')));
+}
+function launchOpenfin() {
+	return openfinLauncher.launchOpenFin({
+		configPath: configPath
 	});
-	//Prints server errors to your terminal.
-	serverExec.stderr.on("data", function (data) {
-		console.log('ERROR:' + data);
-	});
-});
+};
+gulp.task('wipeBuilt', gulp.series(wipeBuilt));
+
+
+gulp.task('copy', gulp.series(
+	copyStaticFiles
+));
+gulp.task('wp', gulp.series(webpackComponents))
+gulp.task('build', gulp.series(
+	'wipeBuilt',
+	'copy',
+	webpackClients,
+	webpackServices,
+	webpackComponents
+));
+
+gulp.task('devServer', gulp.series(
+	'wipeBuilt',
+	'copy',
+	webpackClients,
+	webpackServices,
+	webpackComponents,
+	function (done) {				
+		var exec = require('child_process').exec;
+		//This runs essentially runs 'PORT=80 node server/server.js'
+		var serverExec = exec('node ' + path.join(__dirname, '/server/server.js'), { env: { 'PORT': 80, NODE_ENV: "dev" } });
+		serverExec.stdout.on("data", function (data) {
+			//Prints server output to your terminal.
+			console.log("SERVER STDOUT:", data);
+			if (data.indexOf("listening on port") > -1) {
+				//Once the server is up and running, we launch openfin.
+				launchOpenfin();
+				done();
+			}
+		});
+		//Prints server errors to your terminal.
+		serverExec.stderr.on("data", function (data) {
+			console.log('ERROR:' + data);
+		});
+	})
+); 
+gulp.task('default', gulp.series('devServer'));

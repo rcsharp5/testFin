@@ -8,35 +8,41 @@ function getDirectories(srcpath) {
 		return fs.statSync(path.join(srcpath, file)).isFile();
 	});
 }
-console.log(path.join(__dirname, "/src/services/**/*Service.js"))
-var entry = glob_entries(path.join(__dirname, "/src/services/**/*Service.js"));
+var entry = glob_entries(path.join(__dirname, '../', "/src/services/**/*"));
+var dir = 'services';
 for (var key in entry) {
 	var currentPath = entry[key];
 	delete entry[key];
 	var newKey = key.replace("Service", "");
-    console.log("currentPath",currentPath)
-	if (key !== "baseService")
-	{ entry[newKey + "/" + newKey] = currentPath; }
+	if (key !== "baseClient") {
+		entry[path.join(newKey, newKey)] = currentPath;
+	} else {
+		entry[path.join(newKey)] = currentPath;
+	}
 }
-console.log("entry",entry)
 module.exports = {
 	devtool: 'source-map',
 	entry: entry,
-    target: 'web',
-	context: path.join(__dirname, '/src/services/'),
+	target: 'web',
+	context: path.join(__dirname, '/src/services'),
 	module: {
 		loaders: [{
 			test: /\.json$/,
 			loader: "json-loader",
-              "plugins": [
-    "add-module-exports"
-  ]
-		}]
+			"plugins": [
+				"add-module-exports"
+			]
+		},
+			{
+				test: /\.html$/,
+				loader: "html-loader",				
+			}
+		]
 	},
 	output: {
-		filename: "[name]Service.js",
+		filename: "[name].js",
 		libraryTarget: 'umd',
-		path: path.join(__dirname, 'built/services'),
+		path: path.join(__dirname, '../', '/built/services')
 	},
 	watch: false
 };
